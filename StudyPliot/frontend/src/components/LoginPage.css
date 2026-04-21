@@ -1,0 +1,79 @@
+.login-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #3b8dbd 0%, #0b4306 100%);
+    padding: 20px;
+}
+
+.login-card {
+    width: 100%;
+    max-width:300px;
+    padding: 2rem;
+    background-color: #2c2c2c;
+    border-radius: 0.375rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.login-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    color: #ffffff;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #ffffff;}
+
+.form-input {
+    width: 100%;
+    padding: 0.5rem 1rem;
+    border: 1px solid #636363;
+    border-radius: 0.375rem;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+}
+
+.submit-button {
+    width: 100%;
+    background-color: #3b82f6;
+    color: white;
+    padding: 0.5rem;
+    border-radius: 0.375rem;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.submit-button:hover {
+    background-color: #2563eb;
+}
+
+.error-message {
+    color: #ef4444;
+    font-size: 0.875rem;
+    white-space: pre-line;
+    text-align: center;
+    margin-top: 1rem;
+}
+.form-label {
+  display: flex;
+  align-items: center; /* vertically aligns icon + text */
+  gap: 8px; /* space between icon and text */
+}
+
+.icon {
+  width: 16px;  /* adjust as needed */
+  height: 16px;
+}
