@@ -19,7 +19,7 @@ function RegisterPage() {
         setMessage('');
 
         try {
-            const response = await axios.post('http://localhost:3000/register', {
+            const response = await axios.post('/register', {
                 username,
                 password
             });
