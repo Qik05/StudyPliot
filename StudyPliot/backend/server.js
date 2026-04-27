@@ -1,3 +1,4 @@
+const path = require("path");
 const express = require('express');
 const mysql = require('mysql');
 const cors = require('cors');
@@ -49,6 +50,13 @@ app.post('/register', (req, res) => {
       res.status(201).json({ message: 'User created successfully.' });
     });
   });
+});
+
+// Serve frontend
+app.use(express.static(path.join(__dirname, "client/dist")));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "client/dist", "index.html"));
 });
 
 const PORT = process.env.PORT || 3000;
