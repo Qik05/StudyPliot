@@ -59,10 +59,10 @@ app.post('/register', (req, res) => {
 // serve frontend
 const __dirname = new URL('.', import.meta.url).pathname;
 
-app.use(express.static(join(__dirname, '../frontend/dist')));
+app.use(express.static(path.join(__dirname, "../frontend/dist")));
 
 app.get(/.*/, (req, res) => {
-  res.sendFile(join(__dirname, '../frontend/dist', 'index.html'));
+  res.sendFile(path.join(__dirname, "../frontend/dist/index.html"));
 });
 
 // START SERVER
