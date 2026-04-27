@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate hook
-import './MainPage.css'; // Import CSS file
+import '../styles/MainPage.css'; // Import CSS file
 import NavBar from './NavBar'; // Import NavBar component
 
 function MainPage(props) {
@@ -21,6 +21,9 @@ function MainPage(props) {
     const handleAboutClick = () => {
         navigate('/about');
     };
+    const handleRegisterClick = () => {
+    navigate('/register');
+};
 
     return (
         <>
@@ -28,6 +31,7 @@ function MainPage(props) {
                 onHomeClick={handleHomeClick} 
                 onLoginClick={handleLoginClick} 
                 onAboutClick={handleAboutClick} 
+                onRegisterClick={handleRegisterClick}
             />
             <div className="main-container">
                 <div className="main-content">

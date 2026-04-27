@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import axios from 'axios'; // Import Axios
 import { useNavigate } from 'react-router-dom'; // Import useNavigate hook
-import './LoginPage.css'; // Import CSS file
+import '../styles/LoginPage.css'; // Import CSS file
 import NavBar from './NavBar'; // Import NavBar component
 
 // Import icons
@@ -53,7 +53,9 @@ function LoginPage(props) {
     const handleAboutClick = () => {
         navigate('/about');
     };
-
+const handleRegisterClick = () => {
+    navigate('/register');
+};
     // JSX structure for login form
     return (
         <>
@@ -61,6 +63,7 @@ function LoginPage(props) {
                 onHomeClick={handleHomeClick} 
                 onLoginClick={handleLoginClick} 
                 onAboutClick={handleAboutClick} 
+                onRegisterClick={handleRegisterClick}
             />
             <div className="login-container">
                 <div className="login-card">
@@ -92,6 +95,16 @@ function LoginPage(props) {
                     <button type="submit" className="submit-button">Login</button>
                     {errorMessage && <p className="error-message">{errorMessage}</p>} {/* Display error message if exists */}
                 </form>
+
+                <p style={{ color: '#aaa', textAlign: 'center', marginTop: '1rem', fontSize: '0.875rem' }}>
+    Don't have an account?{' '}
+    <span
+        onClick={() => navigate('/register')}
+        style={{ color: '#3b82f6', cursor: 'pointer' }}
+    >
+        Register
+    </span>
+</p>
             </div>
             </div>
         </>

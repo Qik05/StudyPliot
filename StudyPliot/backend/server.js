@@ -7,7 +7,7 @@ const db = mysql.createPool({
   host: 'localhost',
   user: 'root',
   password: '',
-  database: 'DESIGNLogin',
+  database: 'designLogin',
   port: 3307,
 });
 
@@ -30,6 +30,24 @@ app.post('/login', (req, res) => {
         res.status(401).json({ message: 'Login failed. Invalid username or password.' });
       }
     }
+  });
+});
+
+//register 
+app.post('/register', (req, res) => {
+  const { username, password } = req.body;
+
+// Check if the username already exists
+  const checkSql = 'SELECT * FROM Users WHERE username = ?';
+  db.query(checkSql, [username], (err, result) => {
+    if (err) return res,status(500).json({ message: 'That UserName is already taken.' });
+
+    //insert new user
+    const insertSql = 'INSERT INTO Users (username, password) VALUES (?, ?)'; 
+    db.query(insertSql, [username, password], (err) => {
+      if (err) return res.status(500).json({ message: 'Could not create user.' });
+      res.status(201).json({ message: 'User created successfully.' });
+    });
   });
 });
 
