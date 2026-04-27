@@ -4,12 +4,12 @@ const mysql = require('mysql');
 const cors = require('cors');
 
 const db = mysql.createPool({
-  connectionLimit: 10, // Adjust as needed
-  host: 'localhost',
-  user: 'root',
-  password: '',
-  database: 'designLogin',
-  port: 3307,
+  connectionLimit: 10,
+  host: process.env.MYSQLHOST,
+  user: process.env.MYSQLUSER,
+  password: process.env.MYSQLPASSWORD,
+  database: process.env.MYSQLDATABASE,
+  port: process.env.MYSQLPORT,
 });
 
 const app = express();
