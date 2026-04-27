@@ -34,6 +34,23 @@ app.post('/login', (req, res) => {
       res.status(401).json({ message: 'Invalid credentials' });
     }
   });
+console.log("LOGIN BODY:", req.body);
+
+db.query(sql, [username, password], (err, result) => {
+  if (err) {
+    console.error("LOGIN DB ERROR:", err);
+    return res.status(500).json({ message: err.message });
+  }
+
+  console.log("LOGIN RESULT:", result);
+
+  if (result.length > 0) {
+    return res.status(200).json({ message: 'Login successful' });
+  }
+
+  return res.status(401).json({ message: 'Invalid credentials' });
+});
+
 });
 
 // REGISTER
