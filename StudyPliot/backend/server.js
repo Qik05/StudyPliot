@@ -1,5 +1,5 @@
 import express from 'express';
-import mysql from 'mysql';
+import mysql from 'mysql2';
 import cors from 'cors';
 import path from 'path';
 
@@ -27,8 +27,9 @@ app.post('/login', (req, res) => {
   const sql = 'SELECT * FROM Users WHERE username = ? AND password = ?';
   db.query(sql, [username, password], (err, result) => {
     if (err) {
-      res.status(500).json({ message: 'Server error' });
-    } else if (result.length > 0) {
+  console.error("LOGIN DB ERROR:", err);
+  return res.status(500).json({ message: err.message });
+} else if (result.length > 0) {
       res.status(200).json({ message: 'Login successful' });
     } else {
       res.status(401).json({ message: 'Invalid credentials' });
