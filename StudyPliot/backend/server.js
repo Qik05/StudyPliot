@@ -2,6 +2,8 @@ import express from 'express';
 import mysql from 'mysql2';
 import cors from 'cors';
 import path from 'path';
+//AI ROUTE
+import chatRoute from './chat.js'; 
 
 const { createPool } = mysql;
 const { join } = path;
@@ -19,6 +21,8 @@ const app = express();
 
 app.use(express.json());
 app.use(cors());
+//AI ROUTE
+app.use('/api/chat', chatRoute);  
 
 // LOGIN
 app.post('/login', (req, res) => {
