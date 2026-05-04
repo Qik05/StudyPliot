@@ -19,7 +19,7 @@ const db = createPool({
 
 const app = express();
 
-app.use(express.json());
+app.use(express.json({limit: '20mb'})); // to support JSON-encoded bodies and increase limit for file uploads
 app.use(cors());
 //AI ROUTE
 app.use('/api/chat', chatRoute);  
