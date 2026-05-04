@@ -132,6 +132,9 @@
     font-family: inherit;
     line-height: 1.5;
     transition: border-color 0.2s;
+    overflow-y: hidden;
+min-height: 42px;
+max-height: 160px;
 }
 
 .chat-input:focus {
@@ -170,4 +173,72 @@
     font-size: 0.75rem;
     color: rgba(255,255,255,0.35);
     margin: 4px 0 0;
+}
+
+/* ── file upload ── */
+.chat-attach-btn {
+    background: #2c2c2c;
+    border: 1px solid #3b82f6;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    line-height: 1;
+}
+ 
+.chat-attach-btn:hover:not(:disabled) {
+    background: #3b3b3b;
+}
+ 
+.chat-attach-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+ 
+.file-preview {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #2c2c2c;
+    border: 1px solid #3b82f6;
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin-bottom: 6px;
+    font-size: 0.875rem;
+    color: #f1f1f1;
+}
+ 
+.file-preview-icon {
+    font-size: 1rem;
+}
+ 
+.file-preview-name {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #60a5fa;
+}
+ 
+.file-preview-remove {
+    background: none;
+    border: none;
+    color: #9ca3af;
+    cursor: pointer;
+    font-size: 0.85rem;
+    padding: 0 4px;
+    line-height: 1;
+    transition: color 0.2s;
+}
+ 
+.file-preview-remove:hover {
+    color: #f87171;
+}
+ 
+.file-error {
+    color: #f87171;
+    font-size: 0.8rem;
+    padding: 4px 8px;
+    margin-bottom: 4px;
 }
