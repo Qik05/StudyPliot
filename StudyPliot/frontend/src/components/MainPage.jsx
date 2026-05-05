@@ -17,6 +17,7 @@ const ACCEPTED_TYPES = [
 function MainPage() {
     const navigate = useNavigate();
     const [username, setUsername] = useState('');
+    const [initialGreeting, setInitialGreeting] = useState("Hey! I'm StudyPilot 👋 What are you working on today? Feel free to upload any files too!");
     const [messages, setMessages] = useState([
         { role: 'assistant', content: "Hey! I'm StudyPilot 👋 What are you working on today? Feel free to upload any files too!" }
     ]);
@@ -32,6 +33,7 @@ function MainPage() {
         if (storedUsername) {
             setUsername(storedUsername);
             const personalized = `Hey ${storedUsername}! 👋 I'm StudyPilot. What are you working on today? Feel free to upload any files too!`;
+            setInitialGreeting(personalized);
             setMessages([{ role: 'assistant', content: personalized }]);
         }
     }, []);
@@ -122,6 +124,26 @@ function MainPage() {
         setAttachedFile(null);
 
         try {
+            // If there's a file, upload it first
+            if (fileToSend && fileToSend.mediaType === 'application/pdf') {
+                const formData = new FormData();
+                const binaryString = atob(fileToSend.data);
+                const bytes = new Uint8Array(binaryString.length);
+                for (let i = 0; i < binaryString.length; i++) {
+                    bytes[i] = binaryString.charCodeAt(i);
+                }
+                const blob = new Blob([bytes], { type: 'application/pdf' });
+                const file = new File([blob], fileToSend.name, { type: 'application/pdf' });
+
+                formData.append('file', file);
+                formData.append('username', username);
+
+                await axios.post('/api/upload', formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
+            }
+
+            // Then send to chat
             const response = await axios.post('/api/chat', {
                 messages: newMessages,
                 file: fileToSend || null,
@@ -129,7 +151,7 @@ function MainPage() {
             });
             setMessages([...newMessages, { role: 'assistant', content: response.data.reply }]);
         } catch (error) {
-            console.error('Chat error:', error);
+            console.error('Error:', error);
             setMessages([...newMessages, {
                 role: 'assistant',
                 content: "Sorry, something went wrong. Try again in a sec!",
@@ -214,10 +236,10 @@ function MainPage() {
                             placeholder="Message StudyPilot or attach a file..."
                             value={input}
                             onChange={(e) => {
-                                setInput(e.target.value);
-                                e.target.style.height = 'auto';
-                                e.target.style.height = Math.min(e.target.scrollHeight, 160) + 'px';
-                            }}
+                            setInput(e.target.value);
+                            e.target.style.height = 'auto';
+                            e.target.style.height = Math.min(e.target.scrollHeight, 160) + 'px';
+}}
                             onKeyDown={handleKeyDown}
                         />
 
