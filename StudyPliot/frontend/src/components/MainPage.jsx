@@ -16,6 +16,7 @@ const ACCEPTED_TYPES = [
 
 function MainPage() {
     const navigate = useNavigate();
+    const [username, setUsername] = useState('');
     const [messages, setMessages] = useState([
         { role: 'assistant', content: "Hey! I'm StudyPilot 👋 What are you working on today? Feel free to upload any files too!" }
     ]);
@@ -25,6 +26,15 @@ function MainPage() {
     const [fileError, setFileError] = useState('');
     const bottomRef = useRef(null);
     const fileInputRef = useRef(null);
+
+    useEffect(() => {
+        const storedUsername = localStorage.getItem('username');
+        if (storedUsername) {
+            setUsername(storedUsername);
+            const personalized = `Hey ${storedUsername}! 👋 I'm StudyPilot. What are you working on today? Feel free to upload any files too!`;
+            setMessages([{ role: 'assistant', content: personalized }]);
+        }
+    }, []);
 
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -115,6 +125,7 @@ function MainPage() {
             const response = await axios.post('/api/chat', {
                 messages: newMessages,
                 file: fileToSend || null,
+                username: username,
             });
             setMessages([...newMessages, { role: 'assistant', content: response.data.reply }]);
         } catch (error) {
@@ -203,10 +214,10 @@ function MainPage() {
                             placeholder="Message StudyPilot or attach a file..."
                             value={input}
                             onChange={(e) => {
-                            setInput(e.target.value);
-                            e.target.style.height = 'auto';
-                            e.target.style.height = Math.min(e.target.scrollHeight, 160) + 'px';
-}}
+                                setInput(e.target.value);
+                                e.target.style.height = 'auto';
+                                e.target.style.height = Math.min(e.target.scrollHeight, 160) + 'px';
+                            }}
                             onKeyDown={handleKeyDown}
                         />
 
