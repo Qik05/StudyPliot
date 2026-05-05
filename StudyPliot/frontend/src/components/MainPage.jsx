@@ -25,6 +25,8 @@ function MainPage() {
     const [loading, setLoading] = useState(false);
     const [attachedFile, setAttachedFile] = useState(null);
     const [fileError, setFileError] = useState('');
+    const [filesOpen, setFilesOpen] = useState(false);
+    const [userFiles, setUserFiles] = useState([]);
     const bottomRef = useRef(null);
     const fileInputRef = useRef(null);
 
@@ -41,6 +43,21 @@ function MainPage() {
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages, loading]);
+
+    const fetchUserFiles = async (currentUsername) => {
+        const user = currentUsername || username;
+        if (!user) return;
+        try {
+            const res = await axios.get(`/api/files?username=${user}`);
+            setUserFiles(res.data.files || []);
+        } catch (err) {
+            console.error('Failed to fetch files:', err);
+        }
+    };
+
+    useEffect(() => {
+        if (username) fetchUserFiles(username);
+    }, [username]);
 
     const processFile = (file) => {
         return new Promise((resolve, reject) => {
@@ -122,6 +139,7 @@ function MainPage() {
 
         const fileToSend = attachedFile;
         setAttachedFile(null);
+        let uploadedFileId = null;
 
         try {
             // If there's a file, upload it first
@@ -140,6 +158,7 @@ function MainPage() {
 
                 try {
                     const uploadRes = await axios.post('/api/upload', formData);
+                    uploadedFileId = uploadRes.data.fileId;
                     console.log('File uploaded successfully:', uploadRes.data);
                 } catch (uploadError) {
                     console.error('File upload failed:', uploadError.response?.data || uploadError.message);
@@ -158,7 +177,18 @@ function MainPage() {
                 file: fileToSend || null,
                 username: username,
             });
-            setMessages([...newMessages, { role: 'assistant', content: response.data.reply }]);
+            const aiReply = response.data.reply;
+            setMessages([...newMessages, { role: 'assistant', content: aiReply }]);
+
+            // Save AI summary to the uploaded file record and refresh list
+            if (uploadedFileId) {
+                try {
+                    await axios.patch(`/api/files/${uploadedFileId}/summary`, { summary: aiReply });
+                } catch (err) {
+                    console.error('Failed to save summary:', err);
+                }
+                fetchUserFiles();
+            }
         } catch (error) {
             console.error('Error:', error);
             setMessages([...newMessages, {
@@ -209,6 +239,34 @@ function MainPage() {
                         <div ref={bottomRef} />
                     </div>
 
+                    {filesOpen && (
+                        <div className="files-panel">
+                            <div className="files-panel-header">
+                                <span>My Uploaded Files</span>
+                                <button className="files-panel-close" onClick={() => setFilesOpen(false)}>✕</button>
+                            </div>
+                            {userFiles.length === 0 ? (
+                                <p className="files-panel-empty">No files uploaded yet.</p>
+                            ) : (
+                                <div className="files-list">
+                                    {userFiles.map((file) => (
+                                        <div key={file.id} className="file-card">
+                                            <div className="file-card-name">
+                                                <span>📄</span>
+                                                <span>{file.filename}</span>
+                                            </div>
+                                            {file.aiSummary ? (
+                                                <p className="file-card-summary">{file.aiSummary}</p>
+                                            ) : (
+                                                <p className="file-card-no-summary">No AI response yet</p>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    )}
+
                     {attachedFile && (
                         <div className="file-preview">
                             <span className="file-preview-icon">📎</span>
@@ -237,6 +295,14 @@ function MainPage() {
                             disabled={loading}
                         >
                             📎
+                        </button>
+
+                        <button
+                            className={`files-toggle-btn${filesOpen ? ' active' : ''}`}
+                            onClick={() => { setFilesOpen(o => !o); if (!filesOpen) fetchUserFiles(); }}
+                            title="View uploaded files"
+                        >
+                            📁 My Files
                         </button>
 
                         <textarea
