@@ -32,15 +32,19 @@ function AboutPage() {
             <div className="about-container">
                 <div className="about-content">
                     <div className="about-card">
-                        <h2 className="about-title">About Us</h2>
+                        <h2 className="about-title">StudyPilot AI Study Planning Assistant</h2>
                         <p className="about-text">
-                            Welcome to Study Pilot
+                            Overview
                         </p>
                         <p className="about-text">
-                            67
+                            StudyPilot is an AI-powered academic planning application designed to help students organize coursework and manage their study time more effectively. The system allows users to track their classes and assignments while generating personalized study schedules based on deadlines, workload, and availability.
+
+Many students struggle to keep track of assignments across multiple platforms such as learning management systems, calendars, and notes. StudyPilot centralizes this information and uses AI to create a structured study plan to help students stay organized and meet deadlines.
+
+This project is being developed as part of COSC 412 Software Engineering.
                         </p>
                         <p className="about-text">
-                            67
+                            
                         </p>
                     </div>
                 </div>
