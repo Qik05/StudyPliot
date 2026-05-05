@@ -138,9 +138,14 @@ function MainPage() {
                 formData.append('file', file);
                 formData.append('username', username);
 
-                await axios.post('/api/upload', formData, {
-                    headers: { 'Content-Type': 'multipart/form-data' }
-                });
+                try {
+                    const uploadRes = await axios.post('/api/upload', formData, {
+                        headers: { 'Content-Type': 'multipart/form-data' }
+                    });
+                    console.log('File uploaded successfully:', uploadRes.data);
+                } catch (uploadError) {
+                    console.error('File upload failed:', uploadError.response?.data || uploadError.message);
+                }
             }
 
             // Then send to chat
