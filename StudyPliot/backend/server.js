@@ -91,13 +91,23 @@ app.post('/register', (req, res) => {
 });
 
 // FILE UPLOAD
-app.post('/api/upload', upload.single('file'), (req, res) => {
+app.post('/api/upload', (req, res, next) => {
+  upload.single('file')(req, res, (err) => {
+    if (err) {
+      console.error('Multer error:', err.message);
+      return res.status(400).json({ message: err.message });
+    }
+    next();
+  });
+}, (req, res) => {
   if (!req.file) {
+    console.warn('No file in request');
     return res.status(400).json({ message: 'No file uploaded' });
   }
 
   const { username } = req.body;
   if (!username) {
+    console.warn('No username provided');
     return res.status(400).json({ message: 'Username required' });
   }
 
@@ -105,13 +115,30 @@ app.post('/api/upload', upload.single('file'), (req, res) => {
   const filePath = `/uploads/${req.file.filename}`;
   const fileType = req.file.mimetype;
 
-  const sql = 'INSERT INTO UserFiles (username, filename, filePath, fileType) VALUES (?, ?, ?, ?)';
+  console.log(`Uploading: ${filename} for user ${username}, filepath: ${filePath}`);
+
+  const sql = 'INSERT INTO Userfiles (username, filename, filePath, fileType) VALUES (?, ?, ?, ?)';
   db.query(sql, [username, filename, filePath, fileType], (err, result) => {
     if (err) {
-      console.error('Upload error:', err);
-      return res.status(500).json({ message: 'Failed to save file metadata' });
+      console.error('Database insert error:', err);
+      return res.status(500).json({ message: 'Failed to save file metadata', error: err.message });
     }
-    res.json({ message: 'File uploaded', fileId: result.insertId });
+    console.log(`File saved to DB with ID: ${result.insertId}`);
+    res.json({ message: 'File uploaded successfully', fileId: result.insertId, filePath: filePath });
+  });
+});
+
+// GET USER FILES
+app.get('/api/userfiles/:username', (req, res) => {
+  const { username } = req.params;
+
+  const sql = 'SELECT id, filename, filePath, fileType, uploadedAt FROM Userfiles WHERE username = ? ORDER BY uploadedAt DESC';
+  db.query(sql, [username], (err, results) => {
+    if (err) {
+      console.error('Database query error:', err);
+      return res.status(500).json({ message: 'Failed to fetch files', error: err.message });
+    }
+    res.json({ files: results });
   });
 });
 
