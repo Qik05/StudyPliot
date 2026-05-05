@@ -46,7 +46,7 @@ const db = createPool({
 
 const app = express();
 
-app.use(express.json({limit: '20mb'})); // to support JSON-encoded bodies and increase limit for file uploads
+app.use(express.json({limit: '20mb'}));
 app.use(cors());
 //AI ROUTE
 app.use('/api/chat', chatRoute);  
@@ -58,16 +58,14 @@ app.post('/login', (req, res) => {
   const sql = 'SELECT * FROM Users WHERE username = ? AND password = ?';
   db.query(sql, [username, password], (err, result) => {
     if (err) {
-  console.error("LOGIN DB ERROR:", err);
-  return res.status(500).json({ message: err.message });
-} else if (result.length > 0) {
+      console.error("LOGIN DB ERROR:", err);
+      return res.status(500).json({ message: err.message });
+    } else if (result.length > 0) {
       res.status(200).json({ message: 'Login successful' });
     } else {
       res.status(401).json({ message: 'Invalid credentials' });
     }
   });
-
-
 });
 
 // REGISTER
@@ -87,6 +85,38 @@ app.post('/register', (req, res) => {
       if (err) return res.status(500).json({ message: 'Could not create user' });
       res.status(201).json({ message: 'User created' });
     });
+  });
+});
+
+// DB migration: add aiSummary column if missing
+db.query('ALTER TABLE Userfiles ADD COLUMN aiSummary TEXT', (err) => {
+  if (err && !err.message.includes('Duplicate column name')) {
+    console.error('Migration warning:', err.message);
+  }
+});
+
+// GET /api/files - list uploaded files for a user
+app.get('/api/files', (req, res) => {
+  const { username } = req.query;
+  if (!username) return res.status(400).json({ message: 'Username required' });
+
+  const sql = 'SELECT id, filename, fileType, aiSummary FROM Userfiles WHERE username = ? ORDER BY id DESC';
+  db.query(sql, [username], (err, results) => {
+    if (err) return res.status(500).json({ message: 'Failed to fetch files' });
+    res.json({ files: results });
+  });
+});
+
+// PATCH /api/files/:fileId/summary - save AI summary for a file
+app.patch('/api/files/:fileId/summary', (req, res) => {
+  const { fileId } = req.params;
+  const { summary } = req.body;
+  if (!summary) return res.status(400).json({ message: 'Summary required' });
+
+  const sql = 'UPDATE Userfiles SET aiSummary = ? WHERE id = ?';
+  db.query(sql, [summary, fileId], (err) => {
+    if (err) return res.status(500).json({ message: 'Failed to save summary' });
+    res.json({ message: 'Summary saved' });
   });
 });
 
