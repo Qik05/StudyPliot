@@ -5,11 +5,12 @@
     "build": "cd frontend && npm install && npm run build && cd ../backend && npm install",
     "start": "cd backend && npm start"
   },
-  "dependencies": {},
+   "dependencies": {
+    "multer": "^2.1.1"
+  },
   "devDependencies": {
     "autoprefixer": "^10.5.0",
     "postcss": "^8.5.10",
-    "tailwindcss": "^4.2.2",
-    "multer": "^2.1.1"
+    "tailwindcss": "^4.2.2"
   }
 }
