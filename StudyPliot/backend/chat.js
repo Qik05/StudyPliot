@@ -45,13 +45,13 @@ router.post('/', async (req, res) => {
   try {
     let apiMessages = [...messages];
 
-    if (file && apiMessages.length > 0) {
+    if (file) {
       const lastIndex = apiMessages.length - 1;
       const lastMessage = apiMessages[lastIndex];
 
       let contentArray = [];
 
-      if (file.mediaType === 'application/pdf') {
+      if (file.mediaType === 'application/pdf' && file.data) {
         contentArray.push({
           type: 'document',
           source: {
@@ -60,7 +60,7 @@ router.post('/', async (req, res) => {
             data: file.data,
           },
         });
-      } else if (file.mediaType.startsWith('image/')) {
+      } else if (file.mediaType && file.mediaType.startsWith('image/') && file.data) {
         contentArray.push({
           type: 'image',
           source: {
@@ -69,7 +69,7 @@ router.post('/', async (req, res) => {
             data: file.data,
           },
         });
-      } else {
+      } else if (file.textContent) {
         contentArray.push({
           type: 'text',
           text: `The user uploaded a file named "${file.name}". Here is its content:\n\n${file.textContent}`,
@@ -83,10 +83,12 @@ router.post('/', async (req, res) => {
         });
       }
 
-      apiMessages[lastIndex] = {
-        role: 'user',
-        content: contentArray,
-      };
+      if (contentArray.length > 0) {
+        apiMessages[lastIndex] = {
+          role: 'user',
+          content: contentArray,
+        };
+      }
     }
 
     const userContext = username ? `\nThe current user is: ${username}` : '';
@@ -99,10 +101,18 @@ router.post('/', async (req, res) => {
       messages: apiMessages,
     });
 
+    if (!response.content || !response.content[0] || !response.content[0].text) {
+      console.error('Unexpected API response format:', response);
+      return res.status(500).json({ message: 'Invalid response from AI' });
+    }
+
     const reply = response.content[0].text;
     res.json({ reply });
   } catch (error) {
-    console.error('AI error:', error);
+    console.error('AI error:', error.message || error);
+    if (error.status === 400) {
+      console.error('Bad request to Anthropic API:', error);
+    }
     res.status(500).json({ message: 'AI request failed' });
   }
 });
