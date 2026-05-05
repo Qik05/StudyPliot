@@ -139,18 +139,18 @@ function MainPage() {
                 formData.append('username', username);
 
                 try {
-    const uploadRes = await axios.post('/api/upload', formData);
-    console.log('File uploaded successfully:', uploadRes.data);
-} catch (uploadError) {
-    console.error('File upload failed:', uploadError.response?.data || uploadError.message);
-    // NEW: Show user the error and stop processing
-    setMessages([...newMessages, {
-        role: 'assistant',
-        content: `I couldn't save your PDF to your files. Error: ${uploadError.response?.data?.message || uploadError.message}. I can still help you with it though!`,
-    }]);
-    setLoading(false);
-    return; // NEW: Don't send chat message if upload fails
-}
+                    const uploadRes = await axios.post('/api/upload', formData);
+                    console.log('File uploaded successfully:', uploadRes.data);
+                } catch (uploadError) {
+                    console.error('File upload failed:', uploadError.response?.data || uploadError.message);
+                    // NEW: Show user the error and stop processing
+                    setMessages([...newMessages, {
+                        role: 'assistant',
+                        content: `I couldn't save your PDF to your files. Error: ${uploadError.response?.data?.message || uploadError.message}. I can still help you with it though!`,
+                    }]);
+                    setLoading(false);
+                    return; // NEW: Don't send chat message if upload fails
+                }
 
             // Then send to chat
             const response = await axios.post('/api/chat', {
