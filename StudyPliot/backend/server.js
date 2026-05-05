@@ -117,7 +117,7 @@ app.post('/api/upload', (req, res, next) => {
 
   console.log(`Uploading: ${filename} for user ${username}`);
 
-  const sql = 'INSERT INTO UserFiles (username, filename, filePath, fileType) VALUES (?, ?, ?, ?)';
+  const sql = 'INSERT INTO Userfiles (username, filename, filePath, fileType) VALUES (?, ?, ?, ?)';
   db.query(sql, [username, filename, filePath, fileType], (err, result) => {
     if (err) {
       console.error('Database insert error:', err);
