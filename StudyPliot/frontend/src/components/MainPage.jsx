@@ -139,9 +139,7 @@ function MainPage() {
                 formData.append('username', username);
 
                 try {
-                    const uploadRes = await axios.post('/api/upload', formData, {
-                        headers: { 'Content-Type': 'multipart/form-data' }
-                    });
+                    const uploadRes = await axios.post('/api/upload', formData);
                     console.log('File uploaded successfully:', uploadRes.data);
                 } catch (uploadError) {
                     console.error('File upload failed:', uploadError.response?.data || uploadError.message);
