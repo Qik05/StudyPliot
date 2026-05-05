@@ -1,4 +1,3 @@
-// StudyPliot/backend/chat.js
 import express from 'express';
 import Anthropic from '@anthropic-ai/sdk';
 
@@ -25,12 +24,6 @@ YOUR JOB:
   * When are they free to study?
 - If the user uploads a file (syllabus, assignment, notes, image), read it and use its content to inform your responses.
 - Extract relevant info from uploaded files: assignment names, due dates, topics, complexity.
-- Gather info naturally through conversation:
-  * What is the assignment or topic?
-  * What subject/class is it for?
-  * When is it due?
-  * How many pages or how complex is it?
-  * When are they free to study?
 - Estimate how long the work will take based on subject and complexity
 - Once you have enough info, generate a study plan
 
@@ -47,22 +40,17 @@ WHEN TO GENERATE:
 `;
 
 router.post('/', async (req, res) => {
-  const { messages, file } = req.body;
- 
+  const { messages, file, username } = req.body;
+
   try {
-    // Build the messages array for the API
-    // We need to reconstruct it because file content only goes in the latest user message
     let apiMessages = [...messages];
- 
-    // If a file was uploaded, attach it to the last user message
+
     if (file && apiMessages.length > 0) {
       const lastIndex = apiMessages.length - 1;
       const lastMessage = apiMessages[lastIndex];
- 
-      // Build the content array for the last user message
+
       let contentArray = [];
- 
-      // Add the file content block based on type
+
       if (file.mediaType === 'application/pdf') {
         contentArray.push({
           type: 'document',
@@ -82,34 +70,35 @@ router.post('/', async (req, res) => {
           },
         });
       } else {
-        // Plain text / Word doc (text already extracted on frontend)
         contentArray.push({
           type: 'text',
           text: `The user uploaded a file named "${file.name}". Here is its content:\n\n${file.textContent}`,
         });
       }
- 
-      // Add the user's text message
+
       if (lastMessage.content) {
         contentArray.push({
           type: 'text',
           text: lastMessage.content,
         });
       }
- 
+
       apiMessages[lastIndex] = {
         role: 'user',
         content: contentArray,
       };
     }
- 
+
+    const userContext = username ? `\nThe current user is: ${username}` : '';
+    const customPrompt = systemPrompt + userContext;
+
     const response = await client.messages.create({
       model: 'claude-haiku-4-5-20251001',
       max_tokens: 1024,
-      system: systemPrompt,
+      system: customPrompt,
       messages: apiMessages,
     });
- 
+
     const reply = response.content[0].text;
     res.json({ reply });
   } catch (error) {
@@ -117,5 +106,5 @@ router.post('/', async (req, res) => {
     res.status(500).json({ message: 'AI request failed' });
   }
 });
- 
+
 export default router;
