@@ -2,11 +2,38 @@ import express from 'express';
 import mysql from 'mysql2';
 import cors from 'cors';
 import path from 'path';
+import multer from 'multer';
+import fs from 'fs';
 //AI ROUTE
-import chatRoute from './chat.js'; 
+import chatRoute from './chat.js';
 
 const { createPool } = mysql;
 const { join } = path;
+
+const uploadsDir = path.join(path.dirname(new URL(import.meta.url).pathname), 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadsDir);
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + '-' + file.originalname);
+  },
+});
+
+const upload = multer({
+  storage,
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype === 'application/pdf') {
+      cb(null, true);
+    } else {
+      cb(new Error('Only PDF files are allowed'));
+    }
+  }
+});
 
 const db = createPool({
   connectionLimit: 10,
@@ -60,6 +87,31 @@ app.post('/register', (req, res) => {
       if (err) return res.status(500).json({ message: 'Could not create user' });
       res.status(201).json({ message: 'User created' });
     });
+  });
+});
+
+// FILE UPLOAD
+app.post('/api/upload', upload.single('file'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ message: 'No file uploaded' });
+  }
+
+  const { username } = req.body;
+  if (!username) {
+    return res.status(400).json({ message: 'Username required' });
+  }
+
+  const filename = req.file.originalname;
+  const filePath = `/uploads/${req.file.filename}`;
+  const fileType = req.file.mimetype;
+
+  const sql = 'INSERT INTO UserFiles (username, filename, filePath, fileType) VALUES (?, ?, ?, ?)';
+  db.query(sql, [username, filename, filePath, fileType], (err, result) => {
+    if (err) {
+      console.error('Upload error:', err);
+      return res.status(500).json({ message: 'Failed to save file metadata' });
+    }
+    res.json({ message: 'File uploaded', fileId: result.insertId });
   });
 });
 
