@@ -43,7 +43,25 @@ const db = createPool({
   database: process.env.MYSQLDATABASE,
   port: process.env.MYSQLPORT,
 });
+// Auto-create tables if they don't exist
+db.query(`
+  CREATE TABLE IF NOT EXISTS Users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL
+  )
+`, (err) => { if (err) console.error('Users table error:', err.message); });
 
+db.query(`
+  CREATE TABLE IF NOT EXISTS Userfiles (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(255) NOT NULL,
+    filename VARCHAR(255),
+    filePath VARCHAR(500),
+    fileType VARCHAR(100),
+    aiSummary TEXT
+  )
+`, (err) => { if (err) console.error('Userfiles table error:', err.message); });
 const app = express();
 
 app.use(express.json({limit: '20mb'}));
@@ -81,10 +99,13 @@ app.post('/register', (req, res) => {
     }
 
     const insertSql = 'INSERT INTO Users (username, password) VALUES (?, ?)';
-    db.query(insertSql, [username, password], (err) => {
-      if (err) return res.status(500).json({ message: 'Could not create user' });
-      res.status(201).json({ message: 'User created' });
-    });
+db.query(insertSql, [username, password], (err) => {
+  if (err) {
+    console.error("REGISTER DB ERROR:", err);  // ← added
+    return res.status(500).json({ message: 'Could not create user' });
+  }
+  res.status(201).json({ message: 'User created' });
+});
   });
 });
 
