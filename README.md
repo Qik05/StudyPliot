@@ -30,7 +30,7 @@ This project is being developed as part of **COSC 412 – Software Engineering**
 - Express
 
 ### Database
-- PostgreSQL
+- MySQL
 
 ### Authentication
 - JWT-based authentication
@@ -38,6 +38,8 @@ This project is being developed as part of **COSC 412 – Software Engineering**
 ### AI Integration
 - AI-assisted scheduling module for generating study plans
 
+### Hosting
+- RailWay
 ---
 
 ## System Architecture
